@@ -29,11 +29,16 @@ const gameBoard = (() => {
 
     const checkWin = (gameBoard) => {
         const winEvent = new CustomEvent("win-event", {
-            detail: `has won the game!`,
+            detail: {
+                message: `has won the game!`,
+                winState: true,
+            },
         });
 
         const tieEvent = new CustomEvent("tie-event", {
-            detail: "It's a tie",
+            detail: {
+                message: "It's a tie",
+            },
         });
 
         const spacesAvailable = gameBoard.flat().reduce((count, space) => {
@@ -79,16 +84,16 @@ const gameBoard = (() => {
         }
     };
 
-    const getWinState = () => winState;
-
     return { getBoard, reset, placeMarker, checkWin };
 })();
 
 const displayController = (() => {
     let board = gameBoard.getBoard();
     let message = "";
+    let keepPlaying = true;
 
     const updateDisplay = () => {
+        if (!keepPlaying) return;
         gameBoard.checkWin(board);
         console.clear();
         console.log(`
@@ -101,33 +106,31 @@ const displayController = (() => {
     };
 
     window.addEventListener("win-event", (e) => {
-        message = `${gameController.getActivePlayer().name} ${e.detail}`;
-        console.log(e.detail);
+        message = `${gameController.getActivePlayer().name} ${e.detail.message}`;
+        console.log(message);
+        keepPlaying = !e.detail.winState;
     });
 
     window.addEventListener("tie-event", (e) => {
-        message = e.detail;
-        console.log(e.detail);
+        message = e.detail.message;
+        console.log(message);
     });
 
     return { updateDisplay };
 })();
 
+function createPlayer(playerName, playerMarker) {
+    return {
+        name: playerName,
+        marker: playerMarker,
+    };
+}
+
 const gameController = (() => {
-    let playerOne = "P1";
-    let playerTwo = "P2";
+    let player1 = createPlayer("Jack", "x");
+    let player2 = createPlayer("John", "o");
 
-    const player1 = {
-        name: playerOne,
-        marker: "X",
-    };
-
-    const player2 = {
-        name: playerTwo,
-        marker: "O",
-    };
-
-    let currentPlayer = player1;
+    let currentPlayer = player1.marker === "x" ? player1 : player2;
 
     const switchPlayer = () =>
         (currentPlayer = currentPlayer === player1 ? player2 : player1);
@@ -161,3 +164,4 @@ gameController.play(1, 2);
 gameController.play(0, 1);
 gameController.play(1, 1);
 gameController.play(0, 2);
+gameController.play(1, 0); // should not respond as game is won!
