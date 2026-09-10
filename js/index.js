@@ -3,14 +3,10 @@
 const gameBoard = (() => {
     let winState = false;
     let board = [
-        ["1", "2", "3"],
-        ["4", "5", "6"],
-        ["7", "8", "9"],
+        ["", "", ""],
+        ["", "", ""],
+        ["", "", ""],
     ];
-
-    const boardEvent = new CustomEvent("boardReady", {
-        detail: true,
-    });
 
     const getBoard = () => {
         return board;
@@ -21,7 +17,6 @@ const gameBoard = (() => {
     };
 
     const placeMarker = (player, row, col) => {
-        console.log(board[0][1]);
         if (winState) return;
 
         if (board[row][col] === "X" || board[row][col] === "O") {
@@ -33,43 +28,87 @@ const gameBoard = (() => {
     };
 
     const checkWin = (gameBoard) => {
-        console.log(gameBoard);
+        const winEvent = new CustomEvent("win-event", {
+            detail: `has won the game!`,
+        });
+
+        const tieEvent = new CustomEvent("tie-event", {
+            detail: "It's a tie",
+        });
+
+        const spacesAvailable = gameBoard.flat().reduce((count, space) => {
+            return space === "" ? count + 1 : count;
+        }, 0);
+
+        if (!spacesAvailable && !winState) {
+            dispatchEvent(tieEvent);
+            return;
+        }
+
         if (
             // Horizontal Test
-            (gameBoard[0][0] === gameBoard[0][1] &&
-                gameBoard[0][1] === gameBoard[0][2]) ||
-            (gameBoard[1][0] === gameBoard[1][1] &&
-                gameBoard[1][1] === gameBoard[1][2]) ||
-            (gameBoard[2][0] === gameBoard[2][1] &&
-                gameBoard[2][1] === gameBoard[2][2]) ||
+            (gameBoard[0][0] !== "" &&
+                gameBoard[0][0] === gameBoard[0][1] &&
+                gameBoard[0][0] === gameBoard[0][2]) ||
+            (gameBoard[1][0] !== "" &&
+                gameBoard[1][0] === gameBoard[1][1] &&
+                gameBoard[1][0] === gameBoard[1][2]) ||
+            (gameBoard[2][0] !== "" &&
+                gameBoard[2][0] === gameBoard[2][1] &&
+                gameBoard[2][0] === gameBoard[2][2]) ||
             // Vertical Test
-            (gameBoard[0][0] === gameBoard[1][0] &&
-                gameBoard[1][0] === gameBoard[2][0]) ||
-            (gameBoard[0][1] === gameBoard[1][1] &&
-                gameBoard[1][1] === gameBoard[2][1]) ||
-            (gameBoard[0][2] === gameBoard[1][2] &&
-                gameBoard[1][2] === gameBoard[2][2]) ||
+            (gameBoard[0][0] !== "" &&
+                gameBoard[0][0] === gameBoard[1][0] &&
+                gameBoard[0][0] === gameBoard[2][0]) ||
+            (gameBoard[0][1] !== "" &&
+                gameBoard[0][1] === gameBoard[1][1] &&
+                gameBoard[0][1] === gameBoard[2][1]) ||
+            (gameBoard[0][2] !== "" &&
+                gameBoard[0][2] === gameBoard[1][2] &&
+                gameBoard[0][2] === gameBoard[2][2]) ||
             // Diaganol Test
-            (gameBoard[0][0] === gameBoard[1][1] &&
-                gameBoard[1][1] === gameBoard[2][2]) ||
-            (gameBoard[0][2] === gameBoard[1][1] &&
-                gameBoard[1][1] === gameBoard[2][0])
+            (gameBoard[0][0] !== "" &&
+                gameBoard[0][0] === gameBoard[1][1] &&
+                gameBoard[0][0] === gameBoard[2][2]) ||
+            (gameBoard[0][2] !== "" &&
+                gameBoard[0][2] === gameBoard[1][1] &&
+                gameBoard[0][2] === gameBoard[2][0])
         ) {
-            winState = true;
-            console.log("Won!", winState);
+            // winState = true;
+            dispatchEvent(winEvent);
         }
     };
 
     const getWinState = () => winState;
 
-    return { getBoard, reset, placeMarker, checkWin, getWinState };
+    return { getBoard, reset, placeMarker, checkWin };
 })();
 
 const displayController = (() => {
+    let board = gameBoard.getBoard();
+    let message = "";
+
     const updateDisplay = () => {
-        let board = gameBoard.getBoard();
         gameBoard.checkWin(board);
+        console.clear();
+        console.log(`
+            ${board[0][0]} | ${board[0][1]} | ${board[0][2]}\n
+            ---------\n
+            ${board[1][0]} | ${board[1][1]} | ${board[1][2]}\n
+            ---------\n
+            ${board[2][0]} | ${board[2][1]} | ${board[2][2]}\n\n
+            ${message}`);
     };
+
+    window.addEventListener("win-event", (e) => {
+        message = `${gameController.getActivePlayer().name} ${e.detail}`;
+        console.log(e.detail);
+    });
+
+    window.addEventListener("tie-event", (e) => {
+        message = e.detail;
+        console.log(e.detail);
+    });
 
     return { updateDisplay };
 })();
@@ -100,20 +139,25 @@ const gameController = (() => {
 
         displayController.updateDisplay();
 
-        if (gameBoard.getWinState()) {
-            console.log(`Winner is ${currentPlayer.name}`);
-            console.log("Game Over");
-            return;
-        }
-
         switchPlayer();
     };
 
-    return { play };
+    return { play, getActivePlayer };
 })();
+
+// Tie Test
+// gameController.play(0, 0);
+// gameController.play(0, 1);
+// gameController.play(1, 0);
+// gameController.play(2, 0);
+// gameController.play(0, 2);
+// gameController.play(1, 1);
+// gameController.play(2, 1);
+// gameController.play(2, 2);
+// gameController.play(1, 2);
 
 gameController.play(0, 0);
 gameController.play(1, 2);
 gameController.play(0, 1);
-gameController.play(1, 0);
+gameController.play(1, 1);
 gameController.play(0, 2);
