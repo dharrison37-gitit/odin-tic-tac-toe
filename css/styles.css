@@ -1,0 +1,87 @@
+* {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+:root {
+    font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Oxygen,
+        Ubuntu,
+        Cantarell,
+        "Open Sans",
+        "Helvetica Neue",
+        sans-serif;
+}
+
+body {
+    height: 100vh;
+}
+
+.container {
+    background-color: honeydew;
+    width: 80vw;
+    margin: 0 auto;
+    position: relative;
+    border: 1px solid;
+}
+
+#gameboard {
+    width: 600px;
+    height: 600px;
+    background-color: teal;
+    display: grid;
+    grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+    gap: 8px;
+    margin: 50px auto;
+    border-radius: 10px;
+}
+
+.cell {
+    width: 200px;
+    height: 200px;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.controls {
+    background-color: honeydew;
+    display: grid;
+    grid-template: 1fr / repeat(3, 1fr);
+    justify-items: center;
+    align-items: center;
+}
+
+.player {
+    display: grid;
+    grid-template: repeat(2, 1fr) / 1fr;
+    justify-items: center;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+input[type="text"] {
+    padding: 1rem 1.2rem;
+    font-size: 1.2rem;
+}
+
+#start-button {
+    width: 200px;
+    padding: 1rem 2rem;
+    margin: 10px auto;
+}
+
+#info {
+    width: 100%;
+    height: 50px;
+    padding: 30px;
+    text-align: center;
+    font-weight: bold;
+}

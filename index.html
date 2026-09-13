@@ -4,14 +4,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/styles.css">
     <title>Odin-Tic-Tac-Toe</title>
 </head>
 
 <body>
-
     <div class="container">
-        <h1>Odin | Tic-Tac-Toe</h1>
+        <div id="gameboard"></div>
+        <div id="info"></div>
+        <div class="controls">
+            <div class="player">
+                <label for="player1">Player 1</label>
+                <input type="text" name="player1" id="player1">
+            </div>
+            <div>
+                <button id="start-button">Play Game</button>
+            </div>
+            <div class="player">
+                <label for="player2">Player 2</label>
+                <input type="text" name="player2" id="player2">
+            </div>
+        </div>
     </div>
 
     <script type="module" src="./js/index.js"></script>

@@ -1,167 +1,123 @@
-"use strict";
+const boardController = (() => {
+    const board = ["", "", "", "", "", "", "", "", ""];
 
-const gameBoard = (() => {
-    let winState = false;
-    let board = [
-        ["", "", ""],
-        ["", "", ""],
-        ["", "", ""],
-    ];
+    // win conditions
+    const winPatterns = () => {
+        return [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6],
+        ];
+    };
 
-    const getBoard = () => {
-        return board;
+    const getBoard = () => board;
+
+    const createBoard = () => {
+        const gameBoard = document.querySelector("#gameboard");
+
+        board.forEach((_item, idx) => {
+            const cell = document.createElement("div");
+            cell.classList.add("cell");
+
+            cell.setAttribute("data-id", idx);
+            cell.textContent = "";
+
+            gameBoard.append(cell);
+        });
+    };
+
+    const checkWinner = (cells) => {
+        for (let pattern of winPatterns()) {
+            const [a, b, c] = pattern;
+
+            if (
+                cells[a].textContent &&
+                cells[a].textContent === cells[b].textContent &&
+                cells[a].textContent === cells[c].textContent
+            ) {
+                return true;
+            }
+        }
+    };
+
+    return { createBoard, getBoard, checkWinner };
+})();
+
+const playerController = (() => {
+    const createPlayer = (playerName, playerMarker) => {
+        return {
+            name: playerName,
+            marker: playerMarker,
+        };
+    };
+
+    return { createPlayer };
+})();
+
+const uiController = (() => {
+    const info = document.querySelector("#info");
+
+    boardController.createBoard();
+
+    const updateInfo = (e) => {
+        info.textContent = `${e.detail.player.name} has won`;
+    };
+
+    window.addEventListener("update-info", updateInfo);
+})();
+
+const gameController = (() => {
+    let keepPlaying = true;
+    const player1 = playerController.createPlayer("p1", "x");
+    const player2 = playerController.createPlayer("p2", "o");
+    let currentPlayer = player1;
+
+    const getCurrentPlayer = () => currentPlayer;
+    const swapPlayer = () =>
+        (currentPlayer = currentPlayer === player1 ? player2 : player1);
+
+    const placeMarker = (e) => {
+        if (!keepPlaying) return;
+
+        const cells = document.querySelectorAll(".cell");
+        const updateInfoEvent = new CustomEvent("update-info", {
+            detail: {
+                player: getCurrentPlayer(),
+            },
+        });
+
+        if (e.target.textContent !== "") return;
+
+        e.target.textContent = getCurrentPlayer().marker;
+
+        if (boardController.checkWinner(cells)) {
+            dispatchEvent(updateInfoEvent);
+            keepPlaying = !keepPlaying;
+        }
+
+        swapPlayer();
     };
 
     const reset = () => {
-        getBoard();
-    };
+        keepPlaying = true;
+        currentPlayer = player1;
+        info.textContent = "";
+        const cells = document.querySelectorAll(".cell");
 
-    const placeMarker = (player, row, col) => {
-        if (winState) return;
+        cells.forEach((e) => (e.textContent = ""));
 
-        if (board[row][col] === "X" || board[row][col] === "O") {
-            console.log("Space not available");
-            return;
-        }
-
-        board[row][col] = player;
-    };
-
-    const checkWin = (gameBoard) => {
-        const winEvent = new CustomEvent("win-event", {
-            detail: {
-                message: `has won the game!`,
-                winState: true,
-            },
+        cells.forEach((cell) => {
+            cell.addEventListener("click", placeMarker);
         });
-
-        const tieEvent = new CustomEvent("tie-event", {
-            detail: {
-                message: "It's a tie",
-            },
-        });
-
-        const spacesAvailable = gameBoard.flat().reduce((count, space) => {
-            return space === "" ? count + 1 : count;
-        }, 0);
-
-        if (!spacesAvailable && !winState) {
-            dispatchEvent(tieEvent);
-            return;
-        }
-
-        if (
-            // Horizontal Test
-            (gameBoard[0][0] !== "" &&
-                gameBoard[0][0] === gameBoard[0][1] &&
-                gameBoard[0][0] === gameBoard[0][2]) ||
-            (gameBoard[1][0] !== "" &&
-                gameBoard[1][0] === gameBoard[1][1] &&
-                gameBoard[1][0] === gameBoard[1][2]) ||
-            (gameBoard[2][0] !== "" &&
-                gameBoard[2][0] === gameBoard[2][1] &&
-                gameBoard[2][0] === gameBoard[2][2]) ||
-            // Vertical Test
-            (gameBoard[0][0] !== "" &&
-                gameBoard[0][0] === gameBoard[1][0] &&
-                gameBoard[0][0] === gameBoard[2][0]) ||
-            (gameBoard[0][1] !== "" &&
-                gameBoard[0][1] === gameBoard[1][1] &&
-                gameBoard[0][1] === gameBoard[2][1]) ||
-            (gameBoard[0][2] !== "" &&
-                gameBoard[0][2] === gameBoard[1][2] &&
-                gameBoard[0][2] === gameBoard[2][2]) ||
-            // Diaganol Test
-            (gameBoard[0][0] !== "" &&
-                gameBoard[0][0] === gameBoard[1][1] &&
-                gameBoard[0][0] === gameBoard[2][2]) ||
-            (gameBoard[0][2] !== "" &&
-                gameBoard[0][2] === gameBoard[1][1] &&
-                gameBoard[0][2] === gameBoard[2][0])
-        ) {
-            // winState = true;
-            dispatchEvent(winEvent);
-        }
     };
 
-    return { getBoard, reset, placeMarker, checkWin };
+    const startButton = document.querySelector("#start-button");
+    startButton.addEventListener("click", reset);
+
+    return { getCurrentPlayer, swapPlayer };
 })();
-
-const displayController = (() => {
-    let board = gameBoard.getBoard();
-    let message = "";
-    let keepPlaying = true;
-
-    const updateDisplay = () => {
-        if (!keepPlaying) return;
-        gameBoard.checkWin(board);
-        console.clear();
-        console.log(`
-            ${board[0][0]} | ${board[0][1]} | ${board[0][2]}\n
-            ---------\n
-            ${board[1][0]} | ${board[1][1]} | ${board[1][2]}\n
-            ---------\n
-            ${board[2][0]} | ${board[2][1]} | ${board[2][2]}\n\n
-            ${message}`);
-    };
-
-    window.addEventListener("win-event", (e) => {
-        message = `${gameController.getActivePlayer().name} ${e.detail.message}`;
-        console.log(message);
-        keepPlaying = !e.detail.winState;
-    });
-
-    window.addEventListener("tie-event", (e) => {
-        message = e.detail.message;
-        console.log(message);
-    });
-
-    return { updateDisplay };
-})();
-
-function createPlayer(playerName, playerMarker) {
-    return {
-        name: playerName,
-        marker: playerMarker,
-    };
-}
-
-const gameController = (() => {
-    let player1 = createPlayer("Jack", "x");
-    let player2 = createPlayer("John", "o");
-
-    let currentPlayer = player1.marker === "x" ? player1 : player2;
-
-    const switchPlayer = () =>
-        (currentPlayer = currentPlayer === player1 ? player2 : player1);
-
-    const getActivePlayer = () => currentPlayer;
-
-    const play = (row, col) => {
-        gameBoard.placeMarker(getActivePlayer().marker, row, col);
-
-        displayController.updateDisplay();
-
-        switchPlayer();
-    };
-
-    return { play, getActivePlayer };
-})();
-
-// Tie Test
-// gameController.play(0, 0);
-// gameController.play(0, 1);
-// gameController.play(1, 0);
-// gameController.play(2, 0);
-// gameController.play(0, 2);
-// gameController.play(1, 1);
-// gameController.play(2, 1);
-// gameController.play(2, 2);
-// gameController.play(1, 2);
-
-gameController.play(0, 0);
-gameController.play(1, 2);
-gameController.play(0, 1);
-gameController.play(1, 1);
-gameController.play(0, 2);
-gameController.play(1, 0); // should not respond as game is won!
