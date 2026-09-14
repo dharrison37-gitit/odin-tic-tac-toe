@@ -98,3 +98,7 @@ input[type="text"] {
 .o {
     color: blue;
 }
+
+.win {
+    background-color: lime;
+}

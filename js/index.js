@@ -40,6 +40,9 @@ const boardController = (() => {
                 cells[a].textContent === cells[b].textContent &&
                 cells[a].textContent === cells[c].textContent
             ) {
+                cells[a].classList.add("win");
+                cells[b].classList.add("win");
+                cells[c].classList.add("win");
                 return true;
             }
         }
@@ -140,6 +143,8 @@ const gameController = (() => {
         const cells = document.querySelectorAll(".cell");
 
         cells.forEach((e) => (e.textContent = ""));
+
+        cells.forEach((cell) => cell.classList.remove("win"));
 
         document
             .querySelector("#gameboard")
