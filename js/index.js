@@ -64,11 +64,17 @@ const uiController = (() => {
 
     boardController.createBoard();
 
-    const updateInfo = (e) => {
+    const winMessage = (e) => {
         info.textContent = `${e.detail.player.name} has won`;
     };
 
-    window.addEventListener("update-info", updateInfo);
+    const updateDisplay = (message) => {
+        info.textContent = message;
+    };
+
+    window.addEventListener("update-info", winMessage);
+
+    return { updateDisplay };
 })();
 
 const gameController = (() => {
@@ -78,6 +84,7 @@ const gameController = (() => {
     let keepPlaying = true;
     let player1;
     let player2;
+    let message = "";
 
     let currentPlayer = player1;
 
@@ -85,6 +92,7 @@ const gameController = (() => {
 
     const swapPlayer = () => {
         currentPlayer = currentPlayer === player1 ? player2 : player1;
+        message = `${currentPlayer.name}'s turn`;
     };
 
     const placeMarker = (e) => {
@@ -107,6 +115,8 @@ const gameController = (() => {
         }
 
         swapPlayer();
+
+        if (keepPlaying) uiController.updateDisplay(message);
     };
 
     const reset = () => {
@@ -120,12 +130,20 @@ const gameController = (() => {
         cells.forEach((cell) => {
             cell.addEventListener("click", placeMarker);
         });
+        message = `${currentPlayer.name}'s turn`;
+        uiController.updateDisplay(message);
     };
 
     const startButton = document.querySelector("#start-button");
     startButton.addEventListener("click", (e) => {
-        player1 = playerController.createPlayer(p1Name.value, "x");
-        player2 = playerController.createPlayer(p2Name.value, "o");
+        player1 = playerController.createPlayer(
+            p1Name.value.toUpperCase() || "Player 1",
+            "x",
+        );
+        player2 = playerController.createPlayer(
+            p2Name.value.toUpperCase() || "Player 2",
+            "o",
+        );
         reset();
     });
 

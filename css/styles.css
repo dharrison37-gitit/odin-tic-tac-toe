@@ -24,21 +24,18 @@ body {
 }
 
 .container {
-    background-color: honeydew;
-    width: 80vw;
+    width: 70vw;
     margin: 0 auto;
-    position: relative;
-    border: 1px solid;
 }
 
 #gameboard {
     width: 600px;
     height: 600px;
-    background-color: teal;
+    background-color: black;
     display: grid;
     grid-template: repeat(3, 1fr) / repeat(3, 1fr);
     gap: 8px;
-    margin: 50px auto;
+    margin: 20px auto;
     border-radius: 10px;
 }
 
@@ -49,14 +46,16 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    font-size: 48px;
 }
 
 .controls {
-    background-color: honeydew;
+    background-color: lightslategray;
     display: grid;
     grid-template: 1fr / repeat(3, 1fr);
     justify-items: center;
     align-items: center;
+    border-radius: 10px;
 }
 
 .player {
