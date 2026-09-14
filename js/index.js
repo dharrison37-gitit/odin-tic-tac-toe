@@ -49,7 +49,7 @@ const boardController = (() => {
 })();
 
 const playerController = (() => {
-    const createPlayer = (playerName, playerMarker) => {
+    const createPlayer = (playerName = "player1", playerMarker) => {
         return {
             name: playerName,
             marker: playerMarker,
@@ -72,14 +72,20 @@ const uiController = (() => {
 })();
 
 const gameController = (() => {
+    const p1Name = document.querySelector("#player1");
+    const p2Name = document.querySelector("#player2");
+
     let keepPlaying = true;
-    const player1 = playerController.createPlayer("p1", "x");
-    const player2 = playerController.createPlayer("p2", "o");
+    let player1;
+    let player2;
+
     let currentPlayer = player1;
 
     const getCurrentPlayer = () => currentPlayer;
-    const swapPlayer = () =>
-        (currentPlayer = currentPlayer === player1 ? player2 : player1);
+
+    const swapPlayer = () => {
+        currentPlayer = currentPlayer === player1 ? player2 : player1;
+    };
 
     const placeMarker = (e) => {
         if (!keepPlaying) return;
@@ -117,7 +123,11 @@ const gameController = (() => {
     };
 
     const startButton = document.querySelector("#start-button");
-    startButton.addEventListener("click", reset);
+    startButton.addEventListener("click", (e) => {
+        player1 = playerController.createPlayer(p1Name.value, "x");
+        player2 = playerController.createPlayer(p2Name.value, "o");
+        reset();
+    });
 
-    return { getCurrentPlayer, swapPlayer };
+    return { getCurrentPlayer };
 })();
