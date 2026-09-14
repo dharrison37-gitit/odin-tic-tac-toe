@@ -84,9 +84,10 @@ const gameController = (() => {
     let keepPlaying = true;
     let player1;
     let player2;
-    let message = "";
-
+    let message = "Click Play Game to Start!";
     let currentPlayer = player1;
+
+    uiController.updateDisplay(message);
 
     const getCurrentPlayer = () => currentPlayer;
 
@@ -107,16 +108,23 @@ const gameController = (() => {
 
         if (e.target.textContent !== "") return;
 
+        const spaceCount = [...cells].reduce(
+            (count, item) => (item.textContent === "" ? count + 1 : count),
+            0,
+        );
+
         e.target.textContent = getCurrentPlayer().marker;
 
         if (boardController.checkWinner(cells)) {
             dispatchEvent(updateInfoEvent);
             keepPlaying = !keepPlaying;
+        } else if (spaceCount === 1) {
+            console.log("should log tie");
+            uiController.updateDisplay("It's a tie");
+        } else {
+            swapPlayer();
+            if (keepPlaying) uiController.updateDisplay(message);
         }
-
-        swapPlayer();
-
-        if (keepPlaying) uiController.updateDisplay(message);
     };
 
     const reset = () => {
