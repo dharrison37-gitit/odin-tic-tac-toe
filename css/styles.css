@@ -85,3 +85,16 @@ input[type="text"] {
     text-align: center;
     font-weight: bold;
 }
+
+.x,
+.o {
+    font-size: 14rem;
+}
+
+.x {
+    color: red;
+}
+
+.o {
+    color: blue;
+}

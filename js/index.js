@@ -81,15 +81,13 @@ const gameController = (() => {
     const p1Name = document.querySelector("#player1");
     const p2Name = document.querySelector("#player2");
 
-    let keepPlaying = true;
     let player1;
     let player2;
+    let keepPlaying = true;
     let message = "Click Play Game to Start!";
     let currentPlayer = player1;
 
     uiController.updateDisplay(message);
-
-    const getCurrentPlayer = () => currentPlayer;
 
     const swapPlayer = () => {
         currentPlayer = currentPlayer === player1 ? player2 : player1;
@@ -102,7 +100,7 @@ const gameController = (() => {
         const cells = document.querySelectorAll(".cell");
         const updateInfoEvent = new CustomEvent("update-info", {
             detail: {
-                player: getCurrentPlayer(),
+                player: currentPlayer,
             },
         });
 
@@ -113,7 +111,15 @@ const gameController = (() => {
             0,
         );
 
-        e.target.textContent = getCurrentPlayer().marker;
+        if (currentPlayer === player1) {
+            e.target.classList.remove("o");
+            e.target.classList.add("x");
+        } else {
+            e.target.classList.remove("x");
+            e.target.classList.add("o");
+        }
+
+        e.target.textContent = currentPlayer.marker;
 
         if (boardController.checkWinner(cells)) {
             dispatchEvent(updateInfoEvent);
@@ -135,9 +141,10 @@ const gameController = (() => {
 
         cells.forEach((e) => (e.textContent = ""));
 
-        cells.forEach((cell) => {
-            cell.addEventListener("click", placeMarker);
-        });
+        document
+            .querySelector("#gameboard")
+            .addEventListener("click", placeMarker);
+
         message = `${currentPlayer.name}'s turn`;
         uiController.updateDisplay(message);
     };
@@ -154,6 +161,4 @@ const gameController = (() => {
         );
         reset();
     });
-
-    return { getCurrentPlayer };
 })();
